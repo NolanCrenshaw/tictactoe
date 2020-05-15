@@ -120,10 +120,47 @@ window.addEventListener("DOMContentLoaded", (e) => {
             })
         },
 
+        aiObvious: function(remain, arr) {
+            let posClicks = remain.filter(el=>arr.includes(el));
+            if (posClicks.length > 0) {
+                return document.getElementById(`square-${posClicks[0]}`).click();
+            }
+        },
+
+        aiCreative: function(sqrRemain, aiArr, opArr) {
+            // first turn - going first
+            if (aiArr.length===0&&opArr.length===0) {
+                // top corner
+                return document.getElementById('square-0').click();
+            }
+            // first turn - going second
+            if (aiArr.length===0) {
+                if (opArr[0]===4) {
+                    // if opp took center - go top corner
+                    return document.getElementById('square-0').click();
+                } else if ([0,2,6,8].includes(opArr[0])) {
+                    // if opp took a corner - go center
+                    return document.getElementById('square-4').click();
+                }
+            }
+            // second turn - going first
+            if (aiArr.length===1&&opArr.length===1) {
+                if (opArr[0]===4) {
+                    // if opp took center - go opposite corner
+                    return document.getElementById('square-8').click();
+                // else play best corner
+                } else if ([1,2,5,8].includes(opArr[0])) {
+                    return document.getElementById('square-6').click();
+                } else {
+                    return document.getElementById('square-2').click();
+                }
+            }
+            return document.getElementById(`square-${sqrRemain[0]}`).click()
+
+        },
+
         aiTurn: function(p) {
             let aiArr, opArr;
-            let compSelf = [];
-            let compOpp = [];
             if (p) {
                 aiArr = pOneArr;
                 opArr = pTwoArr;
@@ -132,38 +169,20 @@ window.addEventListener("DOMContentLoaded", (e) => {
                 opArr = pOneArr;
             }
             let sqrRemain = autoBrains.findRemain(aiArr, opArr);
-            compSelf = autoBrains.aiLook(aiArr);
-            compOpp = autoBrains.aiLook(opArr);
-            console.log(compSelf);
-            console.log(compOpp);
-
-
-            // compSelf = victoryArr.filter(function(el) {
-            //     if (aiArr.includes(el[0]) && aiArr.includes(el[1])) {
-            //         return el;
-            //     } else if (aiArr.includes(el[0]) && aiArr.includes(el[2])) {
-            //         return el;
-            //     } else if (aiArr.includes(el[1]) && aiArr.includes(el[2])) {
-            //         return el;
-            //     }
-            // })
-            // compOpp = victoryArr.filter(function(el) {
-            //     if (opArr.includes(el[0]) && opArr.includes(el[1])) {
-            //         return el;
-            //     } else if (opArr.includes(el[0]) && opArr.includes(el[2])) {
-            //         return el;
-            //     } else if (opArr.includes(el[1]) && opArr.includes(el[2])) {
-            //         return el;
-            //     }
-            // })
-
+            let considerSelf = autoBrains.aiLook(aiArr);
+            let considerOpp = autoBrains.aiLook(opArr);
+            if (considerSelf.length > 0) {
+                autoBrains.aiObvious(sqrRemain, ...considerSelf);
+            }
+            if (considerOpp.length > 0) {
+                autoBrains.aiObvious(sqrRemain, ...considerOpp);
+            }
+            autoBrains.aiCreative(sqrRemain, aiArr, opArr);
         }
-
-
-
     }
 
     const handlers = {
+
         setEventListeners: function() {
 
             board.addEventListener("click", function gameBoard(e) {
