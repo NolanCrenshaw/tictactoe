@@ -205,9 +205,6 @@ window.addEventListener("DOMContentLoaded", (e) => {
             })
 
         }
-
-
-
     }
 
     // -- Initialization Call List
