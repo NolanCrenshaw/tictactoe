@@ -6,7 +6,7 @@ window.addEventListener("DOMContentLoaded", (e) => {
     const bigO = "https://assets.aaonline.io/Module-DOM-API/formative-project-tic-tac-toe/player-o.svg";
     const newGame = document.getElementById("newGameButton");
     const giveUp = document.getElementById("giveUpButton");
-    const AIButton = document.getElementById("aiButton");
+    const aiButton = document.getElementById("aiButton");
 
     newGame.style.display = "none"
 
@@ -22,7 +22,7 @@ window.addEventListener("DOMContentLoaded", (e) => {
 
     const gameFunctions = {
 
-        start: function(e) {
+        takeTurn: function(e) {
             if (playerOne) {
                 gameFunctions.playerTurn(e, bigX, pOneArr)
             } else {
@@ -91,10 +91,71 @@ window.addEventListener("DOMContentLoaded", (e) => {
                 }
             });
         },
+    }
+
+    const autoBrains = {
+
+        findRemain: function(ai, op) {
+            const sqrs = ["0",1,2,3,4,5,6,7,8]
+            let left = sqrs.filter(function(el) {
+                if (![...ai, ...op].includes(Number(el))) {
+                    return el;
+                }
+            });
+            if (left[0] === "0") {
+                left[0] = 0;
+            }
+            return left;
+        },
+
+        aiLook: function(arr) {
+            return victoryArr.filter(function(el) {
+                if (arr.includes(el[0]) && arr.includes(el[1])) {
+                    return el;
+                } else if (arr.includes(el[0]) && arr.includes(el[2])) {
+                    return el;
+                } else if (arr.includes(el[1]) && arr.includes(el[2])) {
+                    return el;
+                }
+            })
+        },
+
+        aiTurn: function(p) {
+            let aiArr, opArr;
+            let compSelf = [];
+            let compOpp = [];
+            if (p) {
+                aiArr = pOneArr;
+                opArr = pTwoArr;
+            } else {
+                aiArr = pTwoArr;
+                opArr = pOneArr;
+            }
+            let sqrRemain = autoBrains.findRemain(aiArr, opArr);
+            compSelf = autoBrains.aiLook(aiArr);
+            compOpp = autoBrains.aiLook(opArr);
+            console.log(compSelf);
+            console.log(compOpp);
 
 
-        aiTurn: function() {
-
+            // compSelf = victoryArr.filter(function(el) {
+            //     if (aiArr.includes(el[0]) && aiArr.includes(el[1])) {
+            //         return el;
+            //     } else if (aiArr.includes(el[0]) && aiArr.includes(el[2])) {
+            //         return el;
+            //     } else if (aiArr.includes(el[1]) && aiArr.includes(el[2])) {
+            //         return el;
+            //     }
+            // })
+            // compOpp = victoryArr.filter(function(el) {
+            //     if (opArr.includes(el[0]) && opArr.includes(el[1])) {
+            //         return el;
+            //     } else if (opArr.includes(el[0]) && opArr.includes(el[2])) {
+            //         return el;
+            //     } else if (opArr.includes(el[1]) && opArr.includes(el[2])) {
+            //         return el;
+            //     }
+            // })
 
         }
 
@@ -104,54 +165,33 @@ window.addEventListener("DOMContentLoaded", (e) => {
 
     const handlers = {
         setEventListeners: function() {
+
             board.addEventListener("click", function gameBoard(e) {
-                (gameOver ? "" : gameFunctions.start(e))
+                (outcome ? "" : gameFunctions.takeTurn(e))
             })
+
+            newGame.addEventListener("click", (e) => {
+                location.reload();
+            })
+
+            giveUp.addEventListener("click", (e) => {
+                giveUp.style.display = "none";
+                newGame.style.display = "block";
+                playerOne = !playerOne;
+                gameFunctions.result('win');
+            })
+
+            aiButton.addEventListener("click", (e) => {
+                autoBrains.aiTurn(playerOne);
+            })
+
         }
+
 
 
     }
 
-     // -- Play Controller
-    board.addEventListener("click", e => {
+    // -- Initialization Call List
+    handlers.setEventListeners();
 
-        let img = document.createElement("img");
-        let divId = document.getElementById(e.target.id);
-
-        if (playerOne) {
-            img.setAttribute("src", bigX);
-            pOneArr.push(parseInt(e.target.id.slice(7)));
-            let xClean = pOneArr.filter(el=>el>-1);
-            gameFunctions.gamePlay(xClean);
-        } else {
-            img.setAttribute("src", bigO);
-            pTwoArr.push(parseInt(e.target.id.slice(7)));
-            let yClean = pTwoArr.filter(el=>el>-1);
-            gameFunctions.gamePlay(yClean);
-        }
-
-        if (e.target.nodeName!=="IMG") {
-          divId.appendChild(img);
-          playerOne = !playerOne
-        }
-    })
-
-    // -- AI Player Turn
-    AIButton.addEventListener("click", (e) => {
-
-    })
-
-
-    // -- New Game
-    newGame.addEventListener('click', (e) => {
-        location.reload()
-    })
-
-    // -- Give Up Game
-    giveUp.addEventListener("click", (e) => {
-        giveUp.style.display = "none";
-        newGame.style.display = "block";
-        playerOne = !playerOne;
-        gameFunctions.result('win');
-    })
 })
