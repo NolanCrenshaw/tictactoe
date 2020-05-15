@@ -203,6 +203,7 @@ window.addEventListener("DOMContentLoaded", (e) => {
             aiButton.addEventListener("click", (e) => {
                 autoBrains.aiTurn(playerOne);
             })
+// test
 
         }
     }
